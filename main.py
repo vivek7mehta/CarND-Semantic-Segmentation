@@ -4,8 +4,24 @@ import helper
 import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
-from glob import glob
+import sys
 
+
+if(len(sys.argv)==5):
+        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs =sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
+
+else:
+    glob_learning_rate=0.001
+    glob_batch_size=2
+    glob_keep_prob=0.5
+    global_num_epochs=2
+
+print ('------------------------------- hyperparameters ----------------------------------------------')
+print ('learning rate:',glob_learning_rate)
+print ('batch size', glob_batch_size)
+print ('keep probability', glob_keep_prob)
+print ('number of epochs',global_num_epochs)
+print ('----------------------------------------------------------------------------------------------')
 
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
@@ -124,13 +140,11 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     """
     # TODO: Implement function
 
-    kp = 0.5
-    lr = 0.01
     print ('training........')
     sess.run(tf.global_variables_initializer())
     for i in range(epochs):
         for image,label in get_batches_fn(batch_size):
-            loss ,tr = sess.run([cross_entropy_loss,train_op],feed_dict={input_image:image,correct_label:label,keep_prob:kp,learning_rate:lr})
+            loss ,tr = sess.run([cross_entropy_loss,train_op],feed_dict={input_image:image,correct_label:label,keep_prob:glob_keep_prob,learning_rate:glob_learning_rate})
             print(loss)
 
 tests.test_train_nn(train_nn)
@@ -149,7 +163,6 @@ def run():
     # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
-
     with tf.Session() as sess:
 
         # Path to vgg model
@@ -170,11 +183,11 @@ def run():
 
         learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 
-        logits, training_operation, cross_entropy = optimize(last_layer,correct_label=correct_label,learning_rate=0.01,num_classes=num_classes)
+        logits, training_operation, cross_entropy = optimize(last_layer,correct_label=correct_label,learning_rate=glob_learning_rate,num_classes=num_classes)
         # TODO: Train NN using the train_nn function
 
 
-        train_nn(sess,epochs=1,batch_size=2,get_batches_fn=get_batches_fn,
+        train_nn(sess,epochs=global_num_epochs,batch_size=glob_batch_size,get_batches_fn=get_batches_fn,
                  train_op=training_operation,cross_entropy_loss=cross_entropy,
                  input_image=input_image,correct_label=correct_label,keep_prob=keep_prob,learning_rate=learning_rate)
 
