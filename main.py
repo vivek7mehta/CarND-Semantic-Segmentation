@@ -8,7 +8,7 @@ import sys
 
 
 if(len(sys.argv)==5):
-        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs =float(sys.argv[1]),float(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4])
+        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs =float(sys.argv[1]),float(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4])
 
 else:
     glob_learning_rate=0.001
