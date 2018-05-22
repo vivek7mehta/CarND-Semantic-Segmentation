@@ -8,19 +8,21 @@ import sys
 
 
 if(len(sys.argv)==5):
-        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4])
+        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5])
 
 else:
     glob_learning_rate=0.001
     glob_batch_size=2
     glob_keep_prob=0.5
     global_num_epochs=2
+    glob_reg_param=0.0001
 
 print ('------------------------------- hyperparameters ----------------------------------------------')
 print ('learning rate:',glob_learning_rate)
 print ('batch size', glob_batch_size)
 print ('keep probability', glob_keep_prob)
 print ('number of epochs',global_num_epochs)
+print ('number of epochs',glob_reg_param)
 print ('----------------------------------------------------------------------------------------------')
 
 # Check TensorFlow Version
@@ -114,6 +116,11 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=correct_label, logits=logits)
     loss_operation = tf.reduce_mean(cross_entropy)
+
+    #regularized loss
+    l2_loss = tf.losses.get_regularization_loss()
+    loss_operation += glob_reg_param*l2_loss
+
     optimizer = tf.train.AdamOptimizer(learning_rate)
     training_operation = optimizer.minimize(loss_operation)
 
@@ -143,7 +150,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     print ('training........')
     sess.run(tf.global_variables_initializer())
     for i in range(epochs):
-        print ('--------- epoch:',i,' ---------')
+        print ('--------- epoch:',i+1,' ---------')
         for image,label in get_batches_fn(batch_size):
             tr, loss = sess.run([train_op,cross_entropy_loss],feed_dict={input_image:image,correct_label:label,keep_prob:glob_keep_prob,learning_rate:glob_learning_rate})
             print ('loss:',loss)
@@ -155,7 +162,7 @@ def run():
     image_shape = (160, 576)
     data_dir = './data'
     runs_dir = './runs'
-    tests.test_for_kitti_dataset(data_dir)
+    #tests.test_for_kitti_dataset(data_dir)
 
     # Download pretrained vgg model
     helper.maybe_download_pretrained_vgg(data_dir)
