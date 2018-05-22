@@ -11,10 +11,10 @@ if(len(sys.argv)==6):
         glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5])
 
 else:
-    glob_learning_rate=0.001
-    glob_batch_size=2
-    glob_keep_prob=0.5
-    global_num_epochs=2
+    glob_learning_rate=0.0003
+    glob_batch_size=8
+    glob_keep_prob=0.6
+    global_num_epochs=50
     glob_reg_param=0.0001
 
 print ('------------------------------- hyperparameters ----------------------------------------------')
