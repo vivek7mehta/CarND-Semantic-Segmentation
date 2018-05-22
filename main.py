@@ -7,7 +7,7 @@ import project_tests as tests
 import sys
 
 
-if(len(sys.argv)==5):
+if(len(sys.argv)==6):
         glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5])
 
 else:
