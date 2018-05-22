@@ -119,7 +119,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 
     ################
 
-    return logits, training_operation, cross_entropy
+    return logits, training_operation, loss_operation
 tests.test_optimize(optimize)
 
 
