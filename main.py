@@ -22,7 +22,7 @@ print ('learning rate:',glob_learning_rate)
 print ('batch size', glob_batch_size)
 print ('keep probability', glob_keep_prob)
 print ('number of epochs',global_num_epochs)
-print ('number of epochs',glob_reg_param)
+print ('regularization parameter',glob_reg_param)
 print ('----------------------------------------------------------------------------------------------')
 
 # Check TensorFlow Version
