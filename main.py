@@ -7,15 +7,15 @@ import project_tests as tests
 import sys
 
 
-if(len(sys.argv)==6):
-        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5])
-
+if(len(sys.argv)==7):
+        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param, transfer_learning =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5]),bool(sys.argv[6])
 else:
     glob_learning_rate=0.0003
     glob_batch_size=8
     glob_keep_prob=0.6
     global_num_epochs=50
     glob_reg_param=0.0001
+    transfer_learning=False
 
 print ('------------------------------- hyperparameters ----------------------------------------------')
 print ('learning rate:',glob_learning_rate)
@@ -23,6 +23,7 @@ print ('batch size', glob_batch_size)
 print ('keep probability', glob_keep_prob)
 print ('number of epochs',global_num_epochs)
 print ('regularization parameter',glob_reg_param)
+print ('transfer learning: ',transfer_learning)
 print ('----------------------------------------------------------------------------------------------')
 
 # Check TensorFlow Version
