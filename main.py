@@ -6,9 +6,15 @@ from distutils.version import LooseVersion
 import project_tests as tests
 import sys
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
 
 if(len(sys.argv)==7):
-        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param, transfer_learning =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5]),bool(sys.argv[6])
+        glob_learning_rate, glob_batch_size, glob_keep_prob, global_num_epochs, glob_reg_param, tr_str =float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),int(sys.argv[4]),float(sys.argv[5]),sys.argv[6]
+        transfer_learning = str2bool(tr_str)
 else:
     glob_learning_rate=0.0003
     glob_batch_size=8
