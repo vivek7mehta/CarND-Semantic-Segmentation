@@ -84,22 +84,30 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
-    new_conv_1x1 = tf.layers.conv2d(vgg_layer7_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
-    new_upscaled_1 = tf.layers.conv2d_transpose(new_conv_1x1,num_classes,4,2,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
 
-    new_vgg_layer4_out = tf.layers.conv2d(vgg_layer4_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
+    # Stop gradient
+    if transfer_learning:
+        tf.stop_gradient(vgg_layer7_out)
+        tf.stop_gradient(vgg_layer3_out)
+        tf.stop_gradient(vgg_layer4_out)
+    #
 
-    new_meged_with_layer_4 = tf.add(new_upscaled_1,new_vgg_layer4_out)
+    new_conv_1x1 = tf.layers.conv2d(vgg_layer7_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_conv_1x1')
+    new_upscaled_1 = tf.layers.conv2d_transpose(new_conv_1x1,num_classes,4,2,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_upscaled_1')
+
+    new_vgg_layer4_out = tf.layers.conv2d(vgg_layer4_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_vgg_layer4_out')
+
+    new_meged_with_layer_4 = tf.add(new_upscaled_1,new_vgg_layer4_out,name='new_meged_with_layer_4')
 
     new_upscaled_2 = tf.layers.conv2d_transpose(new_meged_with_layer_4, num_classes, 4, 2, padding='same',
-                                                           kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
+                                                           kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_upscaled_2')
 
-    new_vgg_layer3_out = tf.layers.conv2d(vgg_layer3_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
+    new_vgg_layer3_out = tf.layers.conv2d(vgg_layer3_out,num_classes,1,1,padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_vgg_layer3_out')
 
-    new_merged_with_layer_3 = tf.add(new_upscaled_2, new_vgg_layer3_out)
+    new_merged_with_layer_3 = tf.add(new_upscaled_2, new_vgg_layer3_out,name='new_merged_with_layer_3')
 
     new_upscaled_3 = tf.layers.conv2d_transpose(new_merged_with_layer_3, num_classes, 16, 8, padding='same',
-                                                kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001))
+                                                kernel_regularizer=tf.contrib.layers.l2_regularizer(0.0001),name='new_upscaled_3')
 
     return new_upscaled_3
 tests.test_layers(layers)
@@ -129,12 +137,20 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     loss_operation += glob_reg_param*l2_loss
 
     optimizer = tf.train.AdamOptimizer(learning_rate)
-    training_operation = optimizer.minimize(loss_operation)
+
+    if transfer_learning:
+        trainable_variables = []
+        for variable in tf.global_variables():
+            if 'new_' in variable.name or 'beta' in variable.name:
+                trainable_variables.append(variable)
+        training_operation = optimizer.minimize(loss_operation,var_list=trainable_variables)
+    else:
+        training_operation = optimizer.minimize(loss_operation)
 
     ################
 
     return logits, training_operation, loss_operation
-tests.test_optimize(optimize)
+#tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
@@ -155,7 +171,12 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     # TODO: Implement function
 
     print ('training........')
-    sess.run(tf.global_variables_initializer())
+    if transfer_learning:
+        my_var_init = [var.initializer for var in tf.global_variables() if 'new_' in var.name or 'beta' in var.name]
+        sess.run(my_var_init)
+    else:
+        sess.run(tf.global_variables_initializer())
+
     for i in range(epochs):
         print ('--------- epoch:',i+1,' ---------')
         for image,label in get_batches_fn(batch_size):
